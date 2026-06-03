@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countries of the World</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="data/countries.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+
+<header class="site-header" id="site-header"></header>
+
+<main class="main-content">
+  <a class="back-link" id="back-link" href="continent.html">← Back</a>
+  <div id="card-container"></div>
+  <nav class="nav-arrows" id="nav-arrows"></nav>
+</main>
+
+<script>
+  google.charts.load('current', { packages: ['geochart'] });
+  google.charts.setOnLoadCallback(onGoogleChartsReady);
+
+  const continent = getQueryParam('c') || 'Africa';
+  const idx = parseInt(getQueryParam('i') || '0', 10);
+  const countries = getCountriesByContinent(continent);
+  const total = countries.length;
+  const country = countries[idx] || countries[0];
+
+  document.title = `${country.name} – Countries of the World`;
+
+  buildHeader(continent);
+
+  document.getElementById('back-link').href = `continent.html?c=${encodeURIComponent(continent)}`;
+  document.getElementById('back-link').textContent = `← Back to ${continent}`;
+
+  renderCard(country, 'card-container');
+
+  // Navigation
+  const prevIdx = (idx - 1 + total) % total;
+  const nextIdx = (idx + 1) % total;
+  const prevCountry = countries[prevIdx];
+  const nextCountry = countries[nextIdx];
+  const color = getContinentColor(continent);
+
+  document.getElementById('nav-arrows').innerHTML = `
+    <a class="nav-btn" href="country.html?c=${encodeURIComponent(continent)}&i=${prevIdx}">
+      <span class="arrow">←</span>
+      <span class="nav-name">${prevCountry.emoji} ${prevCountry.name}</span>
+    </a>
+    <a class="nav-btn" href="country.html?c=${encodeURIComponent(continent)}&i=${nextIdx}">
+      <span class="nav-name">${nextCountry.emoji} ${nextCountry.name}</span>
+      <span class="arrow">→</span>
+    </a>
+  `;
+</script>
+</body>
+</html>

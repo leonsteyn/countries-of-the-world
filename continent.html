@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countries of the World – Continent</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="data/countries.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+
+<header class="site-header" id="site-header"></header>
+
+<main class="main-content">
+  <h2 class="page-title" id="page-title"></h2>
+  <div class="country-grid" id="country-grid"></div>
+</main>
+
+<script>
+  const continent = getQueryParam('c') || 'Africa';
+  const cfg = CONTINENT_CONFIG[continent] || { color: '#718096', emoji: '🌍' };
+
+  document.title = `Countries of the World – ${continent}`;
+
+  buildHeader(continent);
+
+  document.getElementById('page-title').textContent = `${cfg.emoji} ${continent}`;
+
+  const countries = getCountriesByContinent(continent);
+  const grid = document.getElementById('country-grid');
+
+  countries.forEach((country, idx) => {
+    const a = document.createElement('a');
+    a.className = 'country-btn';
+    a.style.background = cfg.color;
+    a.href = `country.html?c=${encodeURIComponent(continent)}&i=${idx}`;
+    a.textContent = `${country.emoji} ${country.name}`;
+    grid.appendChild(a);
+  });
+</script>
+</body>
+</html>

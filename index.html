@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countries of the World</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="data/countries.js"></script>
+  <script src="js/app.js"></script>
+</head>
+<body>
+
+<header class="site-header" id="site-header"></header>
+
+<main class="main-content">
+  <div id="card-container"></div>
+  <button class="random-btn" onclick="showRandom()">🎲 Show Another Country</button>
+  <a class="browse-link" href="#site-header">Or browse by continent ↑</a>
+</main>
+
+<script>
+  google.charts.load('current', { packages: ['geochart'] });
+  google.charts.setOnLoadCallback(onGoogleChartsReady);
+
+  buildHeader(null);
+
+  let lastIndex = -1;
+
+  function showRandom() {
+    let idx;
+    do { idx = Math.floor(Math.random() * COUNTRIES.length); } while (idx === lastIndex && COUNTRIES.length > 1);
+    lastIndex = idx;
+    renderCard(COUNTRIES[idx], 'card-container');
+  }
+
+  showRandom();
+</script>
+</body>
+</html>
