@@ -26,7 +26,7 @@ function getContinentEmoji(continent) {
 }
 
 // URL of the Mrs Steyn's Games landing page
-const HOME_URL = "https://mrssteynsgames.netlify.app";
+const HOME_URL = "https://mrssteynsgames.netlify.app"; // UPDATE: set to your Mrs Steyn's Games URL
 
 // Build the shared header, inject into #site-header
 function buildHeader(activeContinent) {
