@@ -41,7 +41,6 @@ function buildHeader(activeContinent) {
   }).join("");
 
   el.innerHTML = `
-    <a href="${HOME_URL}" class="home-back-link">← Mrs Steyn's Games</a>
     <h1>🌍 Countries of the World</h1>
     <p class="subtitle">Fact Sheets for Years 5–6</p>
     <nav class="continent-pills">${pills}</nav>
