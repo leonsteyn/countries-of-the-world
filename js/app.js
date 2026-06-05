@@ -25,6 +25,9 @@ function getContinentEmoji(continent) {
   return (CONTINENT_CONFIG[continent] || {}).emoji || "🌍";
 }
 
+// URL of the Mrs Steyn's Games landing page
+const HOME_URL = "https://mrssteynsgames.netlify.app";
+
 // Build the shared header, inject into #site-header
 function buildHeader(activeContinent) {
   const el = document.getElementById("site-header");
@@ -32,14 +35,13 @@ function buildHeader(activeContinent) {
 
   const pills = Object.entries(CONTINENT_CONFIG).map(([name, cfg]) => {
     const active = name === activeContinent ? " active" : "";
-    // Determine relative path depth for links
-    const prefix = window.location.pathname.includes("/countries-of-the-world/") ? "" : "";
     return `<a href="continent.html?c=${encodeURIComponent(name)}"
                class="continent-pill${active}"
                style="background:${cfg.color}">${cfg.emoji} ${name}</a>`;
   }).join("");
 
   el.innerHTML = `
+    <a href="${HOME_URL}" class="home-back-link">← Mrs Steyn's Games</a>
     <h1>🌍 Countries of the World</h1>
     <p class="subtitle">Fact Sheets for Years 5–6</p>
     <nav class="continent-pills">${pills}</nav>
