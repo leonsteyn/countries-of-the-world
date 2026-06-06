@@ -25,7 +25,10 @@
 
 <main class="main-content">
   <div id="card-container"></div>
-  <button class="random-btn" onclick="showRandom()">🎲 Show Another Country</button>
+  <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem">
+    <button class="random-btn" style="margin:0" onclick="showRandom()">🎲 Random Country</button>
+    <a href="quiz.html" class="random-btn" style="margin:0;background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 15px rgba(5,150,105,0.4);text-decoration:none;display:inline-flex;align-items:center">🧠 Take the Quiz</a>
+  </div>
   <a class="browse-link" href="#site-header">Or browse by continent ↑</a>
 </main>
 

@@ -23,7 +23,13 @@
 <header class="site-header" id="site-header"></header>
 
 <main class="main-content">
-  <h2 class="page-title" id="page-title"></h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.5rem">
+    <h2 class="page-title" id="page-title" style="margin:0"></h2>
+    <a id="quiz-link" href="quiz.html" class="random-btn"
+       style="margin:0;background:linear-gradient(135deg,#059669,#047857);box-shadow:0 4px 15px rgba(5,150,105,0.4);text-decoration:none;display:inline-flex;align-items:center;padding:0.65rem 1.4rem;font-size:0.95rem">
+      🧠 Quiz this continent
+    </a>
+  </div>
   <div class="country-grid" id="country-grid"></div>
 </main>
 
@@ -36,6 +42,7 @@
   buildHeader(continent);
 
   document.getElementById('page-title').textContent = `${cfg.emoji} ${continent}`;
+  document.getElementById('quiz-link').href = `quiz.html?c=${encodeURIComponent(continent)}`;
 
   const countries = getCountriesByContinent(continent);
   const grid = document.getElementById('country-grid');
