@@ -56,6 +56,68 @@ function getWrongCountries(pool, correct, n) {
   return pickRandom(others, Math.min(n, others.length));
 }
 
+// Return the n most visually similar countries to `target` from the global COUNTRIES list.
+// Picks from the top-10 most similar to add variety across plays.
+function getSimilarFlagCountries(target, n) {
+  const ts = FLAG_STYLE[target.iso2];
+  const scored = COUNTRIES
+    .filter(c => c.iso2 !== target.iso2)
+    .map(c => {
+      const cs = FLAG_STYLE[c.iso2];
+      if (!ts || !cs) return { c, score: 0 };
+      const colorScore   = ts.c.filter(col => cs.c.includes(col)).length;
+      const patternScore = ts.p === cs.p ? 3 : 0;
+      return { c, score: colorScore + patternScore };
+    })
+    .sort((a, b) => b.score - a.score);
+
+  // Pick randomly from the top-10 so each play shows different-but-similar options
+  const top = scored.slice(0, 10).map(s => s.c);
+  return pickRandom(top, Math.min(n, top.length));
+}
+
+// Build a list of text aliases that should be redacted from a fun-fact question.
+function getCountryAliases(country) {
+  const aliases = [country.name];
+  // "X and Y" → also redact the first part (e.g. "Antigua" from "Antigua and Barbuda")
+  if (country.name.includes(' and ')) {
+    aliases.push(country.name.split(' and ')[0]);
+  }
+  // Known abbreviations / short names used inside the fact texts
+  const abbrevMap = {
+    'Democratic Republic of the Congo': ['DRC', 'DR Congo'],
+    'United Arab Emirates':             ['UAE'],
+    'United States of America':         ['USA', 'United States'],
+    'United Kingdom':                   ['UK', 'Britain'],
+    'Trinidad and Tobago':              ['Trinidad', 'Tobago'],
+    'São Tomé and Príncipe':            ['São Tomé'],
+    'Bosnia and Herzegovina':           ['Bosnia', 'Herzegovina'],
+    'Republic of the Congo':            ['Congo-Brazzaville'],
+  };
+  if (abbrevMap[country.name]) aliases.push(...abbrevMap[country.name]);
+  return aliases;
+}
+
+// Replace all mentions of the country name (and known aliases) with "this country".
+function redactCountryName(factText, country) {
+  const aliases = getCountryAliases(country);
+  let result = factText;
+  for (const alias of aliases) {
+    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // "The X's" → "This country's"
+    result = result.replace(new RegExp('\\bThe ' + escaped + "'s\\b", 'gi'), "This country's");
+    // "The X" → "This country"
+    result = result.replace(new RegExp('\\bThe ' + escaped + '\\b', 'gi'), 'This country');
+    // "X's" → "This country's"
+    result = result.replace(new RegExp('\\b' + escaped + "'s\\b", 'gi'), "This country's");
+    // "X" → "this country"
+    result = result.replace(new RegExp('\\b' + escaped + '\\b', 'gi'), 'this country');
+  }
+  // Ensure the sentence still starts with a capital letter
+  result = result.charAt(0).toUpperCase() + result.slice(1);
+  return result;
+}
+
 function el(id) { return document.getElementById(id); }
 function render(html) { el('quiz-app').innerHTML = html; }
 
@@ -91,24 +153,27 @@ function makeQuestion(type, country, pool) {
     }
 
     case 'fact': {
-      const wrongs = getWrongValues(pool.map(c => c.name), country.name, 3);
-      const opts   = shuffle([country.name, ...wrongs]);
+      const wrongs     = getWrongValues(pool.map(c => c.name), country.name, 3);
+      const opts       = shuffle([country.name, ...wrongs]);
+      const redacted   = redactCountryName(country.fact, country);
       return { type, text: `Which country is this fun fact about?`,
-               factText: country.fact,
+               factText: redacted,
                options: opts, answer: country.name, countryName: country.name };
     }
 
     case 'flag-identify': {
-      const wrongs = getWrongValues(pool.map(c => c.name), country.name, 3);
-      const opts   = shuffle([country.name, ...wrongs]);
+      // Use visually similar flags as wrong options
+      const similarCountries = getSimilarFlagCountries(country, 3);
+      const opts = shuffle([country.name, ...similarCountries.map(c => c.name)]);
       return { type, text: `Which country does this flag belong to?`,
                flagUrl: `https://flagcdn.com/w320/${country.iso2}.png`,
                options: opts, answer: country.name, countryName: country.name };
     }
 
     case 'flag-select': {
-      const wrongCountries = getWrongCountries(pool, country, 3);
-      const allOpts = shuffle([country, ...wrongCountries]);
+      // Use visually similar flags as wrong options
+      const similarCountries = getSimilarFlagCountries(country, 3);
+      const allOpts = shuffle([country, ...similarCountries]);
       return { type, text: `Which flag belongs to <strong>${country.name}</strong> ${country.emoji}?`,
                flagOptions: allOpts.map(c => ({ name: c.name, url: `https://flagcdn.com/w320/${c.iso2}.png` })),
                options: allOpts.map(c => c.name),
